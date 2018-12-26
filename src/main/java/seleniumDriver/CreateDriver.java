@@ -8,17 +8,21 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.ie.InternetExplorerOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.safari.SafariOptions;
 
 import java.net.URL;
+import java.sql.Time;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class CreateDriver {
 
@@ -84,7 +88,7 @@ public class CreateDriver {
                 WebDriverManager.edgedriver().setup();
                 caps = DesiredCapabilities.edge();
                 EdgeOptions edgeOpts = new EdgeOptions();
-                webDriver.set(new InternetExplorerDriver(edgeOpts.merge(caps)));
+                webDriver.set(new EdgeDriver(edgeOpts.merge(caps)));
                 break;
 
             case "iphone":
@@ -105,6 +109,62 @@ public class CreateDriver {
 
         }
 
+    }
+    public void setDriver (WebDriver driver) {
+        webDriver.set(driver);
+        sessionID.set(((RemoteWebDriver)webDriver.get()).getSessionId().toString());
+        sessionBrowser.set(((RemoteWebDriver) webDriver.get()).getCapabilities().getBrowserName());
+        sessionPlatform.set(((RemoteWebDriver) webDriver.get()).getCapabilities().getPlatform().toString());
+
+    }
+
+    public  void  setDriver(AppiumDriver<MobileElement> driver){
+        mobileDriver.set(driver);
+        sessionID.set(mobileDriver.get().getSessionId().toString());
+        sessionBrowser.set(mobileDriver.get().getCapabilities().getBrowserName());
+        sessionPlatform.set(mobileDriver.get().getCapabilities().getPlatform().toString());
+
+    }
+
+    public WebDriver getDriver(){
+        return webDriver.get();
+    }
+
+    public  AppiumDriver<MobileElement> getDriver(boolean mobile){
+        return  mobileDriver.get();
+    }
+
+    public  WebDriver getCurrentDriver(){
+        if (getInstance().getSessionBrowser().contains("iphone")||
+             getInstance().getSessionBrowser().contains("ipad") ||
+              getInstance().getSessionBrowser().contains("android") )
+        {
+            return  getInstance().getDriver(true);
+        }
+        return  getInstance().getDriver();
+    }
+
+    public String getSessionBrowser(){
+        return sessionBrowser.get();
+    }
+
+    public void waitDriver(int seconds){
+        try {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public  void refreshDriver(){
+        getCurrentDriver().navigate().refresh();
+    }
+
+    public void  closeDriver() {
+        try {
+            getCurrentDriver().quit();
+        } catch (Exception e) {
+        }
     }
 
 
