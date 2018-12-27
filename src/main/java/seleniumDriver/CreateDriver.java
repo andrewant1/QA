@@ -12,6 +12,7 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.ie.InternetExplorerOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -21,6 +22,7 @@ import org.openqa.selenium.safari.SafariOptions;
 
 import java.net.URL;
 import java.sql.Time;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -60,14 +62,26 @@ public class CreateDriver {
                 //System.setProperty("webdriver.gecko.driver","/home/andrew/IdeaProjects/ua.company/src/drivers/geckodriver");
                 WebDriverManager.firefoxdriver().setup();
                 caps = DesiredCapabilities.firefox();
-               FirefoxOptions ffOpts = new FirefoxOptions();
+                FirefoxOptions ffOpts = new FirefoxOptions();
+                FirefoxProfile ffProf = new FirefoxProfile();
+                ffProf.setPreference("browser.autofocus",true);
+                caps.setCapability(FirefoxDriver.PROFILE, ffProf);
+                caps.setCapability("marionette",true);
                 webDriver.set(new FirefoxDriver(ffOpts.merge(caps)));
                 break;
 
             case "chrome":
                 WebDriverManager.chromedriver().setup();
                 caps = DesiredCapabilities.chrome();
+                Map<String,Object> chromePrefs = new HashMap<String, Object>();
+                chromePrefs.put("credentials_enable_service",false);
                 ChromeOptions chOpts = new ChromeOptions();
+                chOpts.setExperimentalOption("prefs",chromePrefs);
+                chOpts.addArguments("--disable-plugins",
+                        "--disable-extensions",
+                        "--disable-popup-blocking");
+                caps.setCapability(ChromeOptions.CAPABILITY,chOpts);
+                caps.setCapability("applicationCacheEnabled",false);
                 webDriver.set(new ChromeDriver(chOpts.merge(caps)));
                 break;
 
@@ -75,12 +89,16 @@ public class CreateDriver {
                 WebDriverManager.iedriver().setup();
                 caps = DesiredCapabilities.internetExplorer();
                 InternetExplorerOptions ieOpts = new InternetExplorerOptions();
+                ieOpts.requireWindowFocus();
+                ieOpts.merge(caps);
+                caps.setCapability("requireWindowFocus",true);
                 webDriver.set(new InternetExplorerDriver(ieOpts.merge(caps)));
                 break;
 
             case "safari":
                 caps = DesiredCapabilities.safari();
                 SafariOptions safOpts = new SafariOptions();
+                caps.setCapability("autoAcceptAlerts",true);
                 webDriver.set(new SafariDriver(safOpts.merge(caps)));
                 break;
 
@@ -88,6 +106,10 @@ public class CreateDriver {
                 WebDriverManager.edgedriver().setup();
                 caps = DesiredCapabilities.edge();
                 EdgeOptions edgeOpts = new EdgeOptions();
+                edgeOpts.setPageLoadStrategy("normal");
+                edgeOpts.merge(caps);
+                caps.setCapability("requireWindowFocus",true);
+
                 webDriver.set(new EdgeDriver(edgeOpts.merge(caps)));
                 break;
 
@@ -95,15 +117,18 @@ public class CreateDriver {
             case "ipad":
                 if(browser.equalsIgnoreCase("iphone")) {
                     caps = DesiredCapabilities.iphone();
+                    caps.setCapability("device","iPhone");
                 }
                  else {
                      caps = DesiredCapabilities.ipad();
+                    caps.setCapability("device","iPad");
                 }
                  mobileDriver.set(new IOSDriver<MobileElement>(new URL(localHub),caps));
                  break;
 
             case "android":
                 caps=DesiredCapabilities.android();
+                caps.setCapability("device","Android");
                 mobileDriver.set(new AndroidDriver<MobileElement>(new URL(localHub),caps));
                 break;
 
@@ -147,6 +172,19 @@ public class CreateDriver {
     public String getSessionBrowser(){
         return sessionBrowser.get();
     }
+
+    public  String getSessionID(){
+        return sessionID.get();
+    }
+
+    public  String getSessionVersion(){
+        return sessionVersion.get();
+    }
+
+    public  String getSessionPlatform(){
+        return sessionPlatform.get();
+    }
+
 
     public void waitDriver(int seconds){
         try {
