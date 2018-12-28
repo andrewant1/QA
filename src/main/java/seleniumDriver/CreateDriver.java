@@ -52,10 +52,14 @@ public class CreateDriver {
         return instance;
     }
 
-    public final void setDriver(String browser, String environment, String platform, Map<String,Object>... optPrefernces)throws Exception{
+
+    @SafeVarargs
+    public final void setDriver(String browser, String environment, String platform, Map<String,Object>... optPreferences)throws Exception{
         DesiredCapabilities caps = null;
         String localHub="http://127.0.0.1:4723/wd/hub/";
         String getPlatform = null;
+        getEnv = "local";
+        getPlatform = platform;
 
         switch (browser){
             case "firefox":
@@ -132,9 +136,29 @@ public class CreateDriver {
                 mobileDriver.set(new AndroidDriver<MobileElement>(new URL(localHub),caps));
                 break;
 
+            }
+
+        if ( browser.equalsIgnoreCase("iphone") ||
+                browser.equalsIgnoreCase("android") ) {
+            sessionID.set(((IOSDriver<MobileElement>)
+                    mobileDriver.get()).getSessionId().toString());
+            sessionID.set(((AndroidDriver<MobileElement>)
+                    mobileDriver.get()).getSessionId().toString());
+            sessionBrowser.set(browser);
+            sessionVersion.set(caps.getCapability("device").toString());
+            sessionPlatform.set(getPlatform);
+        }
+        else {
+            sessionID.set(((RemoteWebDriver) webDriver.get())
+                    .getSessionId().toString());
+            sessionBrowser.set(caps.getBrowserName());
+            sessionVersion.set(caps.getVersion());
+            sessionPlatform.set(getPlatform);
         }
 
-    }
+        }
+
+
     public void setDriver (WebDriver driver) {
         webDriver.set(driver);
         sessionID.set(((RemoteWebDriver)webDriver.get()).getSessionId().toString());
@@ -145,8 +169,8 @@ public class CreateDriver {
 
     public  void  setDriver(AppiumDriver<MobileElement> driver){
         mobileDriver.set(driver);
-        sessionID.set(mobileDriver.get().getSessionId().toString());
-        sessionBrowser.set(mobileDriver.get().getCapabilities().getBrowserName());
+        sessionBrowser.set(mobileDriver.get().getSessionId().toString());
+        sessionID.set(mobileDriver.get().getCapabilities().getBrowserName());
         sessionPlatform.set(mobileDriver.get().getCapabilities().getPlatform().toString());
 
     }
