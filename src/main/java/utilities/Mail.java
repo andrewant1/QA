@@ -89,6 +89,8 @@ public class Mail {
         return  regUrl;
     }
 
+
+
     public static void deleteEmails(String username, String password) throws Exception{
         Properties props = System.getProperties();
         props.setProperty("mail.store.protocol", "imaps");
@@ -98,13 +100,12 @@ public class Mail {
         Folder folder = store.getFolder("INBOX");
         folder.open(Folder.READ_WRITE);
         Message[] messages;
-        messages = folder.getMessages();
-        
-        for ( int i = 0; i < messages.length; i++) {
-            messages[i].setFlag(Flags.Flag.DELETED, true);
+        for (Message message : messages = folder.getMessages()) {
+            message.setFlag(Flags.Flag.DELETED,true);
         }
 
         folder.close(true);
 
     }
+
 }
